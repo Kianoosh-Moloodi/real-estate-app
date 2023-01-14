@@ -11,7 +11,7 @@ function Header() {
   };
 
   return (
-    <div className='border-b shadow-sm sticky top-0 z-99 py-3'>
+    <div className='border-b shadow-sm sticky top-0 z-99 py-3 bg-white'>
       <header className='flex justify-between items-center px-3 max-w-6xl mx-auto'>
         <div>
           <img
@@ -41,11 +41,14 @@ function Header() {
             </li>
             <li
               className={`cursor-pointer text-lg py-3 font-semibold text-gray-400 border-b-4 border-b-transparent ${
-                pathMatchRoute('/sign-in') && 'text-black border-b-green-500'
+                (pathMatchRoute('/sign-in') ||
+                  pathMatchRoute('/sign-up') ||
+                  pathMatchRoute('/forgot-password')) &&
+                'text-black border-b-green-500'
               }`}
               onClick={() => navigate('/sign-in')}
             >
-              Sign In
+              Sign In / Register
             </li>
           </ul>
         </div>
