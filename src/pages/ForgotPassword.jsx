@@ -27,7 +27,7 @@ function ForgotPassword() {
           <img
             src='https://projects.kmagroute.com/logo/KmagRouteProjectsLogo.png'
             alt='logo'
-            className='h-8 cursor-pointer'
+            className='h-8 cursor-pointer mb-9'
           />
         </a>
       </div>
