@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { AiFillEyeInvisible, AiFillEye } from 'react-icons/ai';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import OAuth from '../components/OAuth';
+import { toast } from 'react-toastify';
 
 function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
@@ -11,14 +13,30 @@ function SignIn() {
   });
 
   const { email, password } = formData;
-
+  const navigate = useNavigate();
   const onChange = (e) => {
     setFormData((prevState) => ({
       ...prevState,
       [e.target.id]: e.target.value,
     }));
   };
-
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const auth = getAuth();
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      if (userCredential.user) {
+        navigate('/');
+        toast.success('Sign in was successful.');
+      }
+    } catch (error) {
+      toast.error('Something went wrong!');
+    }
+  };
   return (
     <section className='flex justify-center flex-wrap items-center px-6 py-12 max-w-6xl mx-auto'>
       <div className='md:w-[65%] lg:w-[50%] mb-12 md:mb-6'>
@@ -29,8 +47,8 @@ function SignIn() {
           The latest version of the React library and Tailwind CSS are used in
           this project.
           <br />
-          This is a complete platform that will be able to
-          advertise houses, shops, and other places.
+          This is a complete platform that will be able to advertise houses,
+          shops, and other places.
           <br />
           View more projects on our website.
         </p>
@@ -43,7 +61,7 @@ function SignIn() {
         </a>
       </div>
       <div className='w-full md:w-[65%] lg:w-[40%] lg:ml-20'>
-        <form>
+        <form onSubmit={onSubmit}>
           <input
             className='w-full px-4 py-2 text-xl rounded mb-3'
             type='email'
