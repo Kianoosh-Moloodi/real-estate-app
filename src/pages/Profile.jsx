@@ -1,9 +1,79 @@
-import React from 'react'
+import { getAuth } from 'firebase/auth';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router';
 
 function Profile() {
+  const auth = getAuth();
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    name: auth.currentUser.displayName,
+    email: auth.currentUser.email,
+  });
+
+  const { name, email } = formData;
+  const onLogout = () => {
+    auth.signOut();
+    navigate('/');
+  };
   return (
-    <div>Profile</div>
-  )
+    <section className='flex justify-center flex-wrap items-center px-6 py-12 max-w-6xl mx-auto'>
+      <div className='md:w-[65%] lg:w-[50%] mb-12 md:mb-6'>
+        <h2 className='text-4xl font-bold mb-9'>My Profile</h2>
+        <p className='text-xl mb-6'>
+          Welcome to our online real estate consultant project.
+          <br />
+          The latest version of the React library and Tailwind CSS are used in
+          this project.
+          <br />
+          This is a complete platform that will be able to advertise houses,
+          shops, and other places.
+          <br />
+          View more projects on our website.
+        </p>
+        <a href='https://kmagroute.com/'>
+          <img
+            src='https://projects.kmagroute.com/logo/KmagRouteProjectsLogo.png'
+            alt='logo'
+            className='h-8 cursor-pointer mb-9'
+          />
+        </a>
+      </div>
+      <div className='w-full md:w-[65%] lg:w-[40%] lg:ml-20'>
+        <form>
+          <label htmlFor='name'>Your Fullname</label>
+          <input
+            type='text'
+            id='name'
+            value={name}
+            disabled
+            className='w-full px-4 py-2 text-xl rounded mb-3'
+          />
+          <label htmlFor='name'>Your Email</label>
+          <input
+            type='email'
+            id='email'
+            value={email}
+            disabled
+            className='w-full px-4 py-2 text-xl rounded mb-3'
+          />
+          <div className='flex justify-between mb-6'>
+            <p>
+              Wrong Fullname?
+              <span className='ml-2 text-green-600 hover:text-green-700 cursor-pointer'>
+                Edit
+              </span>
+            </p>
+            <p
+              onClick={onLogout}
+              className='ml-2 text-red-600 hover:text-red-700 cursor-pointer'
+            >
+              Sign out
+            </p>
+          </div>
+        </form>
+      </div>
+    </section>
+  );
 }
 
-export default Profile
+export default Profile;

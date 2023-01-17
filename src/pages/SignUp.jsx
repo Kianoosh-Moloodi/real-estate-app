@@ -119,10 +119,10 @@ function SignUp() {
           </div>
           <div className='flex justify-between mb-6'>
             <p>
-              Already have an account?{' '}
+              Already have an account?
               <Link
                 to='/sign-in'
-                className='text-green-600 hover:text-green-700'
+                className='text-green-600 hover:text-green-700 ml-2'
               >
                 Sign In
               </Link>

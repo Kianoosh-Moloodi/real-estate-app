@@ -93,10 +93,10 @@ function SignIn() {
           </div>
           <div className='flex justify-between mb-6'>
             <p>
-              Don't have an account?{' '}
+              Don't have an account?
               <Link
                 to='/sign-up'
-                className='text-green-600 hover:text-green-700'
+                className='text-green-600 hover:text-green-700 ml-2'
               >
                 Register
               </Link>
