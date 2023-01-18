@@ -1,10 +1,14 @@
-import { getAuth } from 'firebase/auth';
+import { getAuth, updateProfile } from 'firebase/auth';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { toast } from 'react-toastify';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 
 function Profile() {
   const auth = getAuth();
   const navigate = useNavigate();
+  const [changeDetail, setChangeDetail] = useState(false);
   const [formData, setFormData] = useState({
     name: auth.currentUser.displayName,
     email: auth.currentUser.email,
@@ -15,6 +19,29 @@ function Profile() {
     auth.signOut();
     navigate('/');
   };
+  const onChange = (e) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.id]: e.target.value,
+    }));
+  };
+  const onSubmit = async () => {
+    try {
+      if (auth.currentUser.displayName !== name) {
+        await updateProfile(auth.currentUser, {
+          displayName: name,
+        });
+        const docRef = doc(db, 'users', auth.currentUser.uid);
+        await updateDoc(docRef, {
+          name,
+        });
+      }
+      toast.success('Profile has been updated');
+    } catch (error) {
+      toast.error('Something went wrong');
+    }
+  };
+
   return (
     <section className='flex justify-center flex-wrap items-center px-6 py-12 max-w-6xl mx-auto'>
       <div className='md:w-[65%] lg:w-[50%] mb-12 md:mb-6'>
@@ -40,13 +67,16 @@ function Profile() {
       </div>
       <div className='w-full md:w-[65%] lg:w-[40%] lg:ml-20'>
         <form>
-          <label htmlFor='name'>Your Fullname</label>
+          <label htmlFor='name'>Your Full Name</label>
           <input
             type='text'
             id='name'
             value={name}
-            disabled
-            className='w-full px-4 py-2 text-xl rounded mb-3'
+            disabled={!changeDetail}
+            onChange={onChange}
+            className={`w-full px-4 py-2 text-xl rounded mb-3 ${
+              changeDetail && 'bg-yellow-200'
+            } `}
           />
           <label htmlFor='name'>Your Email</label>
           <input
@@ -58,9 +88,15 @@ function Profile() {
           />
           <div className='flex justify-between mb-6'>
             <p>
-              Wrong Fullname?
-              <span className='ml-2 text-green-600 hover:text-green-700 cursor-pointer'>
-                Edit
+              Wrong Full Name?
+              <span
+                onClick={() => {
+                  changeDetail && onSubmit();
+                  setChangeDetail((prevState) => !prevState);
+                }}
+                className='ml-2 text-green-600 hover:text-green-700 cursor-pointer'
+              >
+                {changeDetail ? 'Apply change' : 'Edit'}
               </span>
             </p>
             <p
