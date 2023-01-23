@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+import { MdHomeWork } from 'react-icons/md';
+import { Link } from 'react-router-dom';
 
 function Profile() {
   const auth = getAuth();
@@ -107,6 +109,15 @@ function Profile() {
             </p>
           </div>
         </form>
+        <Link to='/create-listing'>
+          <button
+            type='submit'
+            className='w-full font-bold bg-black text-white rounded flex justify-center items-center p-3'
+          >
+            <MdHomeWork className='mr-2 text-2xl' />
+            Sell or Rent Your Property
+          </button>
+        </Link>
       </div>
     </section>
   );

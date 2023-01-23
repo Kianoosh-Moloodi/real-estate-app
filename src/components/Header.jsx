@@ -27,9 +27,9 @@ function Header() {
       <header className='flex justify-between items-center px-3 max-w-6xl mx-auto'>
         <div>
           <img
-            src='https://projects.kmagroute.com/logo/KmagRouteProjectsLogo.png'
+            src='https://projects.kmagroute.com/logo/my-real-state-app.png'
             alt='logo'
-            className='h-7 cursor-pointer'
+            className='h-9 cursor-pointer'
             onClick={() => navigate('/')}
           />
         </div>
