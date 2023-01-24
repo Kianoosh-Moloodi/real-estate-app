@@ -29,14 +29,14 @@ function Header() {
           <img
             src='https://projects.kmagroute.com/logo/my-real-state-app.png'
             alt='logo'
-            className='h-9 cursor-pointer'
+            className='h-8 cursor-pointer'
             onClick={() => navigate('/')}
           />
         </div>
         <div>
-          <ul className='flex space-x-10'>
+          <ul className='flex space-x-6'>
             <li
-              className={`cursor-pointer py-3 font font-semibold text-gray-400 border-b-4 border-b-transparent ${
+              className={`cursor-pointer py-3 font-semibold text-gray-400 border-b-4 border-b-transparent ${
                 pathMatchRoute('/') && 'text-black border-b-green-500'
               }`}
               onClick={() => navigate('/')}

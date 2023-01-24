@@ -1,20 +1,39 @@
-import React from 'react';
 import { useState } from 'react';
+import Spinner from '../components/Spinner';
+import { toast } from 'react-toastify';
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from 'firebase/storage';
+import { getAuth } from 'firebase/auth';
+import { v4 as uuidv4 } from 'uuid';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db } from '../firebase';
+import { useNavigate } from 'react-router-dom';
 
-function CreateListing() {
+const CreateListing = () => {
+  const navigate = useNavigate();
+  const auth = getAuth();
+  const [geolocationEnabled] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     type: 'rent',
     name: '',
-    meterage: 1,
+    meterage: 9,
     rooms: 1,
     bathrooms: 1,
     parking: false,
     furnished: false,
     address: '',
-    discription: '',
-    offer: true,
-    regularPrice: 0,
-    discountedprice: 0,
+    description: '',
+    offer: false,
+    regularPrice: 50,
+    discountedPrice: 25,
+    latitude: 0,
+    longitude: 0,
+    images: {},
   });
   const {
     type,
@@ -23,19 +42,143 @@ function CreateListing() {
     rooms,
     bathrooms,
     parking,
-    furnished,
     address,
-    discription,
+    furnished,
+    description,
     offer,
     regularPrice,
-    discountedprice,
+    discountedPrice,
+    latitude,
+    longitude,
+    images,
   } = formData;
-  const onChange = () => {};
+  const onChange = (e) => {
+    let boolean = null;
+    if (e.target.value === 'true') {
+      boolean = true;
+    }
+    if (e.target.value === 'false') {
+      boolean = false;
+    }
+    if (e.target.files) {
+      setFormData((prevState) => ({
+        ...prevState,
+        images: e.target.files,
+      }));
+    }
+    if (!e.target.files) {
+      setFormData((prevState) => ({
+        ...prevState,
+        [e.target.id]: boolean ?? e.target.value,
+      }));
+    }
+  };
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    if (+discountedPrice >= +regularPrice) {
+      setLoading(false);
+      toast.error('Discounted price needs to be less than regular price');
+      return;
+    }
+    if (images.length > 6) {
+      setLoading(false);
+      toast.error('maximum 6 images are allowed');
+      return;
+    }
+    let geolocation = {};
+    let location;
+    if (geolocationEnabled) {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${process.env.REACT_APP_GEOCODE_API_KEY}`
+      );
+      const data = await response.json();
+      console.log(data);
+      geolocation.lat = data.results[0]?.geometry.location.lat ?? 0;
+      geolocation.lng = data.results[0]?.geometry.location.lng ?? 0;
+
+      location = data.status === 'ZERO_RESULTS' && undefined;
+
+      if (location === undefined) {
+        setLoading(false);
+        toast.error('please enter a correct address');
+        return;
+      }
+    } else {
+      geolocation.lat = latitude;
+      geolocation.lng = longitude;
+    }
+    const storeImage = async (image) => {
+      return new Promise((resolve, reject) => {
+        const storage = getStorage();
+        const filename = `${auth.currentUser.uid}-${image.name}-${uuidv4()}`;
+        const storageRef = ref(storage, filename);
+        const uploadTask = uploadBytesResumable(storageRef, image);
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            toast.success(
+              'Uploading your images. Please wait ' + progress + '%'
+            );
+            switch (snapshot.state) {
+              case 'paused':
+                console.log('Upload is paused');
+                break;
+              case 'running':
+                console.log('Upload is running');
+                break;
+              default:
+                console.log('Upload state is unknown or not handled');
+                break;
+            }
+          },
+          (error) => {
+            reject(error);
+          },
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              resolve(downloadURL);
+            });
+          }
+        );
+      });
+    };
+
+    const imgUrls = await Promise.all(
+      [...images].map((image) => storeImage(image))
+    ).catch(() => {
+      setLoading(false);
+      toast.error('Images not uploaded');
+      return;
+    });
+
+    const formDataCopy = {
+      ...formData,
+      imgUrls,
+      geolocation,
+      timestamp: serverTimestamp(),
+      userRef: auth.currentUser.uid,
+    };
+    delete formDataCopy.images;
+    !formDataCopy.offer && delete formDataCopy.discountedPrice;
+    delete formDataCopy.latitude;
+    delete formDataCopy.longitude;
+    const docRef = await addDoc(collection(db, 'listings'), formDataCopy);
+    setLoading(false);
+    toast.success('Listing created');
+    navigate(`/category/${formDataCopy.type}/${docRef.id}`);
+  };
+
+  if (loading) {
+    return <Spinner />;
+  }
   return (
     <section className='flex justify-center flex-wrap items-center px-6 py-12 max-w-6xl mx-auto'>
-      <div className='md:w-[65%] lg:w-[50%] mb-12 md:mb-6'>
+      <div className=' md:w-[65%] lg:w-[50%] mb-12 md:mb-6'>
         <h2 className='text-4xl font-bold mb-9'>Create New Listing</h2>
-        <form>
+        <form onSubmit={onSubmit}>
           <p className='font-bold'>Do you want to sell or rent?</p>
           <div className='flex gap-3 my-2'>
             <button
@@ -54,7 +197,7 @@ function CreateListing() {
             <button
               type='button'
               id='type'
-              value='sale'
+              value='rent'
               onClick={onChange}
               className={`py-2 rounded w-full ${
                 type === 'sale'
@@ -73,13 +216,15 @@ function CreateListing() {
             id='name'
             value={name}
             onChange={onChange}
-            maxLength='32'
+            maxLength='42'
             minLength='10'
             required
           />
           <div className='w-full flex gap-3'>
             <div className='w-full'>
-              <p className='font-bold'>Meterage</p>
+              <p className='font-bold'>
+                Meterage <span className='text-[.8rem]'>(㎡)</span>
+              </p>
               <input
                 className='w-full rounded my-2'
                 type='number'
@@ -180,12 +325,48 @@ function CreateListing() {
             onChange={onChange}
             required
           />
+          {!geolocationEnabled && (
+            <>
+              <p className='font-bold mt-4'>
+                Enter the latitude and longitude of your property manually!
+              </p>
+              <div className='flex w-full gap-3 mt-1'>
+                <div className='w-full'>
+                  <p>Latitude:</p>
+                  <input
+                    className='w-full rounded'
+                    type='number'
+                    id='latitude'
+                    value={latitude}
+                    onChange={onChange}
+                    min='-90'
+                    max='90'
+                    required
+                  />
+                </div>
+                <div className='w-full'>
+                  <p>Longitude:</p>
+                  <input
+                    className='w-full rounded'
+                    type='number'
+                    id='longitude'
+                    value={longitude}
+                    onChange={onChange}
+                    min='-180'
+                    max='180'
+                    required
+                  />
+                </div>
+              </div>
+            </>
+          )}
+          <br />
           <p className='font-bold'>Describe your property in full!</p>
           <textarea
             className='w-full rounded my-2'
             type='text'
-            id='discription'
-            value={discription}
+            id='description'
+            value={description}
             onChange={onChange}
             required
           />
@@ -218,15 +399,18 @@ function CreateListing() {
           <div>
             <div>
               {offer ? (
-                <p className='font-bold'>
+                <p className='font-bold mb-3'>
                   Write your regular price and discount offer!
                 </p>
               ) : (
-                <p className='font-bold'>What is your property price?</p>
+                <p className='font-bold mb-3'>What is your property price?</p>
               )}
 
-              <div className='flex gap-3 my-2'>
+              <div className='flex gap-6 my-2'>
                 <div className='flex w-full'>
+                  <p className='text-[.6rem] mr-1'>
+                    Regular <br /> Price
+                  </p>
                   <input
                     className='w-full rounded'
                     type='number'
@@ -242,19 +426,22 @@ function CreateListing() {
                       <p>
                         $ <span className='text-[.5rem]'>Per/</span>{' '}
                       </p>
-                      <p className='text-[.8rem]'>Mounth</p>
+                      <p className='text-[.6rem]'>Mounth</p>
                     </div>
                   )}
                 </div>
                 {offer && (
                   <div className='flex w-full'>
+                    <p className='text-[.6rem] mr-1'>
+                      Discounted <br /> Price
+                    </p>
                     <input
                       className='w-full rounded'
                       type='number'
-                      id='discountedprice'
-                      value={discountedprice}
+                      id='discountedPrice'
+                      value={discountedPrice}
                       onChange={onChange}
-                      min='50'
+                      min='25'
                       max='10000000000'
                       required={offer}
                     />
@@ -263,7 +450,7 @@ function CreateListing() {
                         <p>
                           $ <span className='text-[.5rem]'>Per/</span>{' '}
                         </p>
-                        <p className='text-[.8rem]'>Mounth</p>
+                        <p className='text-[.6rem]'>Mounth</p>
                       </div>
                     )}
                   </div>
@@ -282,13 +469,13 @@ function CreateListing() {
               type='file'
               id='images'
               onChange={onChange}
-              accept='.jpg, .png, .jpeg'
+              accept='jpg , png , jpeg'
               multiple
               required
             />
           </div>
           <button
-            className='w-full p-2 bg-black text-white rounded text-bold'
+            className='w-full p-2 bg-black text-white rounded text-bold my-6'
             type='submit'
           >
             Create Your Listing
@@ -297,6 +484,6 @@ function CreateListing() {
       </div>
     </section>
   );
-}
+};
 
 export default CreateListing;
