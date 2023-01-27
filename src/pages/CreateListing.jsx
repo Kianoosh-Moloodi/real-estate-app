@@ -223,7 +223,7 @@ const CreateListing = () => {
           <div className='w-full flex gap-3'>
             <div className='w-full'>
               <p className='font-bold'>
-                Meterage <span className='text-[.8rem]'>(㎡)</span>
+                Meterage <span className='text-[.8rem]'>㎡</span>
               </p>
               <input
                 className='w-full rounded my-2'
