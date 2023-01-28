@@ -10,6 +10,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import Deals from './pages/Deals';
 import Header from './components/Header';
 import CreateListing from './pages/CreateListing';
+import EditListing from './pages/EditListing';
 
 function App() {
   return (
@@ -27,6 +28,9 @@ function App() {
           <Route path='/deals' element={<Deals />} />
           <Route path='/create-listing' element={<PrivateRoute />}>
             <Route path='/create-listing' element={<CreateListing />} />
+          </Route>
+          <Route path='/edit-listing' element={<PrivateRoute />}>
+            <Route path='/edit-listing/:listingId' element={<EditListing />} />
           </Route>
         </Routes>
       </BrowserRouter>
