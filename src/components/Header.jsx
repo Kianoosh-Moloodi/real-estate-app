@@ -24,7 +24,7 @@ function Header() {
 
   return (
     <div className='border-b shadow-sm sticky top-0 z-99 py-3 bg-white'>
-      <header className='flex justify-between items-center px-3 max-w-6xl mx-auto'>
+      <header className='flex justify-between items-center px-6 max-w-6xl mx-auto'>
         <div>
           <img
             src='https://projects.kmagroute.com/logo/my-real-state-app.png'

@@ -6,3 +6,12 @@ body {
   background-color: rgb(231, 231, 231);
   font-family: 'Quicksand', sans-serif;
 }
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  color: white;
+}
+
+.swiper-pagination-progressbar .swiper-pagination-progressbar-fill {
+  background: red !important;
+}
