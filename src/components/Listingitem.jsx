@@ -24,7 +24,9 @@ function Listingitem({ listing, id, onDelete, onEdit }) {
         <div className='w-full p-2'>
           <div className='flex items-center'>
             <BiCurrentLocation className='h-3 w-4 text-green-700' />
-            <p className='truncate text-xs font-bold text-green-700'>{listing.address}</p>
+            <p className='truncate text-xs font-bold text-green-700'>
+              {listing.address}
+            </p>
           </div>
           <p className='ml-4 mt-2 truncate text-lg font-bold'>{listing.name}</p>
           <p className='ml-4  font-bold text-red-700'>
