@@ -17,7 +17,7 @@ import { useEffect } from 'react';
 const EditListing = () => {
   const navigate = useNavigate();
   const auth = getAuth();
-  const [geolocationEnabled] = useState(true);
+  const [geolocationEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [listing, setListing] = useState(null);
   const [formData, setFormData] = useState({
@@ -368,8 +368,6 @@ const EditListing = () => {
                     id='latitude'
                     value={latitude}
                     onChange={onChange}
-                    min='-90'
-                    max='90'
                     required
                   />
                 </div>
@@ -381,8 +379,6 @@ const EditListing = () => {
                     id='longitude'
                     value={longitude}
                     onChange={onChange}
-                    min='-180'
-                    max='180'
                     required
                   />
                 </div>

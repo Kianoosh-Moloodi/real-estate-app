@@ -9,6 +9,7 @@ import { db } from '../firebase';
 import { MdLocationPin } from 'react-icons/md';
 import { FiMap } from 'react-icons/fi';
 import { FaBed, FaBath, FaParking, FaChair } from 'react-icons/fa';
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import SwiperCore, {
   EffectFade,
@@ -18,6 +19,7 @@ import SwiperCore, {
 } from 'swiper';
 import 'swiper/css/bundle';
 import Contact from '../components/Contact';
+
 function Listing() {
   const auth = getAuth();
   const params = useParams();
@@ -73,10 +75,10 @@ function Listing() {
                 <span className='text-2xl'>
                   $
                   {listing.offer
-                    ? +listing.discountedPrice
+                    ? listing.discountedPrice
                         .toString()
                         .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                    : +listing.regularPrice
+                    : listing.regularPrice
                         .toString()
                         .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                 </span>
@@ -89,18 +91,23 @@ function Listing() {
                     for Sale
                   </span>
                 )}
-                <span className='ml-2'>
-                  {(+listing.discountedPrice * 100) / +listing.regularPrice -
-                    100}
-                  % <span className='text-xs'>less than the regular price</span>
-                </span>
+                {listing.offer && (
+                  <span className='ml-2'>
+                    {Math.round(
+                      (listing.discountedPrice * 100) / +listing.regularPrice -
+                        100
+                    )}
+                    %{' '}
+                    <span className='text-xs'>less than the regular price</span>
+                  </span>
+                )}
               </div>
               <div className='mt-6'>
                 <p className='font-bold'>Description:</p>
                 <p className='text-xs'>{listing.description}</p>
               </div>
               <div className='mt-6 text-xs'>
-                <ul className='flex items-center gap-6'>
+                <ul className='flex items-center gap-4'>
                   <li className='flex items-center whitespace-nowrap gap-1 font-bold'>
                     <FiMap />
                     {listing.meterage}㎡
@@ -140,7 +147,24 @@ function Listing() {
                 )}
               </div>
             </div>
-            <div className='bg-blue-300 w-full p-4 z-10 overflow-x-auto'></div>
+            <div className='p-5 w-full h-[400px] md:h-[400px] z-10  md:mt-0 md:ml-2'>
+              <MapContainer
+                center={[listing.geolocation.lat, listing.geolocation.lng]}
+                zoom={13}
+                scrollWheelZoom={false}
+                className='h-[100%] w-[100%]'
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                />
+                <Marker
+                  position={[listing.geolocation.lat, listing.geolocation.lng]}
+                >
+                  <Popup>{listing.address}</Popup>
+                </Marker>
+              </MapContainer>
+            </div>
           </div>
         </main>
       </section>
