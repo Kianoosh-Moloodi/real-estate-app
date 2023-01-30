@@ -1,4 +1,5 @@
 import { doc, getDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 import React from 'react';
 import { useState } from 'react';
 import { useEffect } from 'react';
@@ -16,10 +17,13 @@ import SwiperCore, {
   Pagination,
 } from 'swiper';
 import 'swiper/css/bundle';
+import Contact from '../components/Contact';
 function Listing() {
+  const auth = getAuth();
   const params = useParams();
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [contactLandLord, setContactLandLord] = useState(false);
   SwiperCore.use([Autoplay, Navigation, Pagination]);
   useEffect(() => {
     const fetchListing = async () => {
@@ -59,7 +63,7 @@ function Listing() {
             ))}
           </Swiper>
           <div className='flex flex-col md:flex-row mt-6 gap-3 bg-white rounded'>
-            <div className='w-full h-[300px] lg-[500px] p-4'>
+            <div className='w-full p-4'>
               <div className='flex items-center text-xs'>
                 <MdLocationPin className='text-green-700 mr-1' />
                 {listing.address}
@@ -88,7 +92,7 @@ function Listing() {
                 <span className='ml-2'>
                   {(+listing.discountedPrice * 100) / +listing.regularPrice -
                     100}
-                  % <span className='text-xs'>less than regular price</span>
+                  % <span className='text-xs'>less than the regular price</span>
                 </span>
               </div>
               <div className='mt-6'>
@@ -120,9 +124,23 @@ function Listing() {
                     {listing.furnished ? 'Furnished' : 'Not Furnished'}
                   </li>
                 </ul>
+                {listing.userRef !== auth.currentUser?.uid &&
+                  !contactLandLord && (
+                    <div className='mt-6'>
+                      <button
+                        onClick={() => setContactLandLord(true)}
+                        className='w-full text-center p-3 bg-blue-600 text-white font-bold rounded'
+                      >
+                        Contact Landlord
+                      </button>
+                    </div>
+                  )}
+                {contactLandLord && (
+                  <Contact userRef={listing.userRef} listing={listing} />
+                )}
               </div>
             </div>
-            <div className='bg-blue-300 w-full h-[300px] lg-[500px] p-4 z-10 overflow-x-auto'></div>
+            <div className='bg-blue-300 w-full p-4 z-10 overflow-x-auto'></div>
           </div>
         </main>
       </section>
