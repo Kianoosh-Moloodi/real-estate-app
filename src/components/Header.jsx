@@ -23,7 +23,7 @@ function Header() {
   };
 
   return (
-    <div className='border-b shadow-sm sticky top-0 z-99 py-3 bg-white'>
+    <div className='border-b shadow-sm sticky top-0 py-3 bg-white z-50'>
       <header className='flex justify-between items-center px-6 max-w-6xl mx-auto'>
         <div>
           <img

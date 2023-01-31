@@ -174,7 +174,7 @@ function Profile() {
             <div className='flex items-center after:border-t after:flex-1 after:border-gray-500 before:border-t before:flex-1 before:border-gray-500'>
               <p className='text-center mx-3'>Your Recent Listings</p>
             </div>
-            <ul className='sm:grid sm:grid-cols-2 lg:grid-cols-4 xl:gird-cols-5 2xl-grid-cols-6 my-12'>
+            <ul className='sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:gird-cols-4 2xl-grid-cols-6 my-12'>
               {listings.map((listing) => (
                 <Listingitem
                   key={listing.id}

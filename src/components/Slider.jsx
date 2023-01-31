@@ -1,8 +1,8 @@
-import React from 'react';
-import { db } from '../firebase';
-import Spinner from '../components/Spinner';
-import { useEffect, useState } from 'react';
 import { collection, getDocs, limit, orderBy, query } from 'firebase/firestore';
+import { useState } from 'react';
+import { useEffect } from 'react';
+import Spinner from '../components/Spinner';
+import { db } from '../firebase';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import SwiperCore, {
   EffectFade,
@@ -11,17 +11,16 @@ import SwiperCore, {
   Pagination,
 } from 'swiper';
 import 'swiper/css/bundle';
-import { useNavigate } from 'react-router';
-
-function Slider() {
-  const [listings, setLisitngs] = useState(null);
+import { useNavigate } from 'react-router-dom';
+export default function Slider() {
+  const [listings, setListings] = useState(null);
   const [loading, setLoading] = useState(true);
   SwiperCore.use([Autoplay, Navigation, Pagination]);
   const navigate = useNavigate();
   useEffect(() => {
-    const fetchLisitngs = async () => {
-      const lisitngsRef = collection(db, 'listings');
-      const q = query(lisitngsRef, orderBy('timesstamp', 'desc'), limit(5));
+    async function fetchListings() {
+      const listingsRef = collection(db, 'listings');
+      const q = query(listingsRef, orderBy('timestamp', 'desc'), limit(5));
       const querySnap = await getDocs(q);
       let listings = [];
       querySnap.forEach((doc) => {
@@ -30,48 +29,54 @@ function Slider() {
           data: doc.data(),
         });
       });
-      setLisitngs(listings);
+      setListings(listings);
       setLoading(false);
-    };
-    fetchLisitngs();
-  }, [listings]);
+    }
+    fetchListings();
+  }, []);
   if (loading) {
     return <Spinner />;
   }
   if (listings.length === 0) {
-    return <p>There is no Listings to Show</p>;
+    return <></>;
   }
   return (
     listings && (
-      <>
-        <Swiper
-          slidesPerView={1}
-          Navigation
-          pagination={{ type: 'progressbar' }}
-          effect='fade'
-          modules={[EffectFade]}
-          autoplay={{ delay: 3000 }}
-        >
-          {listings.map(({ data, id }) => (
-            <SwiperSlide
-              key={id}
-              onClick={() => navigate(`/category/${data.type}/${id}`)}
-            >
-              <div
-                className='w-full overflow-hidden h-96 relative'
-                style={{
-                  background: `url(${data.imgUrls[0]}) center, no-repeat backgroundSize: 'cover'`,
-                }}
-              ></div>
-              <p className='text-white m-2 p-2 bg-black absolute left-1 top-3'>
-                {data.name}
-              </p>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </>
+      <Swiper
+        className='rounded cursor-pointer'
+        slidesPerView={1}
+        navigation
+        pagination={{ type: 'progressbar' }}
+        effect='fade'
+        modules={[EffectFade]}
+        autoplay={{ delay: 3000 }}
+      >
+        {listings.map(({ data, id }) => (
+          <SwiperSlide
+            key={id}
+            onClick={() => navigate(`/category/${data.type}/${id}`)}
+          >
+            <div
+              style={{
+                background: `url(${data.imgUrls[0]}) center, no-repeat`,
+                backgroundSize: 'cover',
+              }}
+              className='relative w-full h-[300px] overflow-hidden'
+            ></div>
+            <p className='text-white absolute left-2 bottom-14 bg-red-700 p-2 rounded'>
+              {data.name}
+            </p>
+            <p className='text-white absolute left-2 bottom-2 bg-red-700 p-2 rounded'>
+              $
+              {(data.discountedPrice ?? data.regularPrice)
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              {data.type === 'rent' && ' per Month for Rent'}
+              {data.type === 'sale' && ' for Sale'}
+            </p>
+          </SwiperSlide>
+        ))}
+      </Swiper>
     )
   );
 }
-
-export default Slider;

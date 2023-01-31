@@ -39,7 +39,7 @@ function Listingitem({ listing, id, onDelete, onEdit }) {
                   .toString()
                   .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
             {listing.type === 'rent' && (
-              <span className='ml-1 text-xs'>per Month</span>
+              <span className='ml-1 text-xs'>per Month for Rent</span>
             )}
             {listing.type === 'sale' && (
               <span className='ml-1 text-xs'>for Sale</span>

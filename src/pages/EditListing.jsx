@@ -147,15 +147,12 @@ const EditListing = () => {
           (snapshot) => {
             const progress =
               (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            toast.success(
-              'Uploading your images. Please wait ' + progress + '%'
-            );
             switch (snapshot.state) {
               case 'paused':
                 console.log('Upload is paused');
                 break;
               case 'running':
-                console.log('Upload is running');
+                console.log('Upload is running' + progress);
                 break;
               default:
                 console.log('Upload state is unknown or not handled');
@@ -178,7 +175,7 @@ const EditListing = () => {
       [...images].map((image) => storeImage(image))
     ).catch(() => {
       setLoading(false);
-      toast.error('Images not uploaded');
+      toast.error('Images error, please follow the uploading rules.');
       return;
     });
 
@@ -487,7 +484,8 @@ const EditListing = () => {
           <div className='my-3'>
             <p className='font-bold'>Upload pictures of your property!</p>
             <p className='mb-2 text-[.8rem] text-red-800'>
-              The first image will be the cover (up to 6)
+              You can select <span className='font-bold'>6</span> images; each
+              should be less than <span className='font-bold'>500Kb</span>.
             </p>
             <input
               className='w-full bg-white p-2 rounded'

@@ -45,6 +45,7 @@ function Listing() {
       <section className='px-6 max-w-6xl mx-auto'>
         <main>
           <Swiper
+            className='mt-6'
             slidesPerView={1}
             navigation
             pagination={{ type: 'progressbar' }}
@@ -84,7 +85,7 @@ function Listing() {
                 </span>
                 {listing.type === 'rent' ? (
                   <span className='bg-red-600 ml-2 p-1 rounded text-xs text-white'>
-                    per Month
+                    per Month / Rent
                   </span>
                 ) : (
                   <span className='bg-red-600 ml-2 p-1 rounded text-xs text-white'>
