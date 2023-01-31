@@ -160,8 +160,6 @@ const CreateListing = () => {
     };
     delete formDataCopy.images;
     !formDataCopy.offer && delete formDataCopy.discountedPrice;
-    delete formDataCopy.latitude;
-    delete formDataCopy.longitude;
     const docRef = await addDoc(collection(db, 'listings'), formDataCopy);
     setLoading(false);
     toast.success('Listing created');
@@ -324,8 +322,20 @@ const CreateListing = () => {
           />
           {!geolocationEnabled && (
             <>
-              <p className='font-bold mt-4'>
+              <p className='font-bold mt-5 mb-2'>
                 Enter the latitude and longitude of your property manually!
+                <br />
+                <span className='text-xs'>
+                  You can use this link to convert your address.{' '}
+                  <a
+                    className='text-red-600'
+                    target='_blank'
+                    rel='noreferrer'
+                    href='https://www.latlong.net/'
+                  >
+                    latlong.net
+                  </a>
+                </span>
               </p>
               <div className='flex w-full gap-3 mt-1'>
                 <div className='w-full'>
@@ -454,7 +464,7 @@ const CreateListing = () => {
           <br />
           <div className='my-3'>
             <p className='font-bold'>Upload pictures of your property!</p>
-            <p className='mb-2 text-[.8rem] text-red-800'>
+            <p className='mb-2 text-[.8rem] text-red-600'>
               You can select <span className='font-bold'>6</span> images; each
               should be less than <span className='font-bold'>500Kb</span>.
             </p>
